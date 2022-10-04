@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+from typing import Dict, Type
 
 
 @dataclass
@@ -16,8 +17,8 @@ class InfoMessage:
                'Потрачено ккал: {:.3f}.')
 
     def get_message(self) -> None:
-        t = asdict(self)
-        return self.MESSAGE.format(*t.values())
+        train = asdict(self)
+        return self.MESSAGE.format(*train.values())
 
 
 class Training:
@@ -48,22 +49,21 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        return InfoMessage(
-            type(self).__name__,
-            self.duration,
-            self.get_distance(),
-            self.get_mean_speed(),
-            self.get_spent_calories())
+        return InfoMessage(type(self).__name__,
+                           self.duration,
+                           self.get_distance(),
+                           self.get_mean_speed(),
+                           self.get_spent_calories())
 
 
 class Running(Training):
     """Тренировка: бег."""
-    RUN_COEFF_CALORIE_1: int = 18
+    RUN_COEFF_CALORIE_1: float = 18
     RUN_COEFF_CALORIE_2: int = 20
 
     def get_spent_calories(self) -> float:
         return ((self.RUN_COEFF_CALORIE_1
-                * self.get_mean_speed() - self.RUN_COEFF_CALORIE_2)
+                 * self.get_mean_speed() - self.RUN_COEFF_CALORIE_2)
                 * self.weight / self.M_IN_KM * (self.duration
                 * self.MIN_IN_HOUR))
 
@@ -84,8 +84,8 @@ class SportsWalking(Training):
 
     def get_spent_calories(self) -> float:
         return ((self.WLK_COEFF_CALORIE_1 * self.weight
-                + (self.get_mean_speed() ** 2 // self.height)
-                * self.WLK_COEFF_CALORIE_2 * self.weight)
+                 + (self.get_mean_speed() ** 2 // self.height)
+                 * self.WLK_COEFF_CALORIE_2 * self.weight)
                 * self.duration * self.MIN_IN_HOUR)
 
 
@@ -117,13 +117,13 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    train_parameters = {
+    train_parameters: Dict[str, Type[Training]] = {
         'SWM': Swimming,
         'RUN': Running,
-        'WLK': SportsWalking}
+        'WLK': SportsWalking
+    }
     if workout_type in train_parameters:
         return train_parameters[workout_type](*data)
-    else:
         raise ValueError("Тренировка не найдена")
 
 
