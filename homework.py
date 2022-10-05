@@ -10,15 +10,14 @@ class InfoMessage:
     distance: float
     speed: float
     calories: float
-    MESSAGE = ('Тип тренировки: {}; '
-               'Длительность: {:.3f} ч.; '
-               'Дистанция: {:.3f} км; '
-               'Ср. скорость: {:.3f} км/ч; '
-               'Потрачено ккал: {:.3f}.')
+    MESSAGE = ('Тип тренировки: {training_type}; '
+               'Длительность: {duration:.3f} ч.; '
+               'Дистанция: {distance:.3f} км; '
+               'Ср. скорость: {speed:.3f} км/ч; '
+               'Потрачено ккал: {calories:.3f}.')
 
     def get_message(self) -> None:
-        train = asdict(self)
-        return self.MESSAGE.format(*train.values())
+        return self.MESSAGE.format(**asdict(self))
 
 
 class Training:
@@ -117,14 +116,12 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    train_parameters: Dict[str, Type[Training]] = {
-        'SWM': Swimming,
-        'RUN': Running,
-        'WLK': SportsWalking
-    }
+    train_parameters: Dict[str, Type[Training]] = {'SWM': Swimming,
+                                                   'RUN': Running,
+                                                   'WLK': SportsWalking}
     if workout_type in train_parameters:
         return train_parameters[workout_type](*data)
-        raise ValueError("Тренировка не найдена")
+    raise ValueError("Тренировка не найдена")
 
 
 def main(training: Training) -> None:
@@ -134,11 +131,9 @@ def main(training: Training) -> None:
 
 
 if __name__ == '__main__':
-    packages = [
-        ('SWM', [720, 1, 80, 25, 40]),
-        ('RUN', [15000, 1, 75]),
-        ('WLK', [9000, 1, 75, 180]),
-    ]
+    packages = [('SWM', [720, 1, 80, 25, 40]),
+                ('RUN', [15000, 1, 75]),
+                ('WLK', [9000, 1, 75, 180])]
 
     for workout_type, data in packages:
         training = read_package(workout_type, data)
